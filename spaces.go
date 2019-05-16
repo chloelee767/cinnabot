@@ -11,6 +11,10 @@ import (
 	"time"
 )
 
+// Important note for all time related code:
+// 1. Firestore stores all datetimes in UTC (adjusted from SG time)
+// 2. It is asssumed time.Now() returns Singapore time (ie. Go recognises SG as the local timezone)
+
 const GREATER_THAN = "GREATER_THAN" //for firestore queries (use with makeQuery)
 
 // PARSING AND QUERYING:
@@ -401,11 +405,11 @@ func bookingsOnDateMessage(date time.Time) string {
 	return message
 }
 
-// ParseDDMMYYDate parses user-inputted dd/mm/yy date into time.Time
+// ParseDDMMYYDate parses user-inputted dd/mm/yy date into time.Time (SG time)
 func ParseDDMMYYDate(date string) (time.Time, error) {
 	//Attempt to parse as dd/mm/yy
 	format := "02/01/06"
-	t, err := time.Parse(format, date)
+	t, err := time.ParseInLocation(format, date, time.Now().Location())
 
 	if err != nil {
 		// Attempt to parse as dd/m/yy
